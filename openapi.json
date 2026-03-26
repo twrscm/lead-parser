@@ -1,0 +1,63 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Combined Noted from Lead Parser",
+    "description": "Extract cleaned question-answer rows from Zoho Combined Notes from Lead PDFs.",
+    "version": "3.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://combined-noted-from-lead-parser.onrender.com"
+    }
+  ],
+  "paths": {
+    "/parse": {
+      "post": {
+        "operationId": "parsePdf",
+        "summary": "Parse Zoho Combined Notes from Lead PDF",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Parsed rows",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "rows": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "rows"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

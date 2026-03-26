@@ -1,0 +1,14 @@
+Use the parser action result as the source of truth.
+
+When the parser returns rows:
+- return only the rows
+- keep the exact text returned by the parser
+- put the final answer inside a fenced code block
+- do not re-parse the PDF
+- do not summarize
+- do not add commentary
+- do not show raw JSON
+- do not invent or restore excluded fields
+
+If the parser returns no rows, say:
+The parser returned no rows. Please verify the PDF upload and parser deployment.
