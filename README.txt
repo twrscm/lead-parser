@@ -1,0 +1,1 @@
+Remove old Action. Import new openapi.json. Replace GPT Instructions with gpt-instructions.txt.

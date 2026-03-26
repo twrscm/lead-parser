@@ -1,0 +1,74 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Combined Noted from Lead Parser",
+    "description": "Use the uploaded Zoho Combined Notes from Lead PDF from the current conversation and return cleaned rows.",
+    "version": "5.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://combined-noted-from-lead-parser.onrender.com"
+    }
+  ],
+  "paths": {
+    "/parse": {
+      "post": {
+        "operationId": "parsePdf",
+        "summary": "Parse uploaded Zoho Combined Notes from Lead PDF",
+        "description": "Always use the uploaded PDF from the current conversation. Send it in openaiFileIdRefs. Do not send file_path. Do not call this action without openaiFileIdRefs.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "openaiFileIdRefs": {
+                    "type": "array",
+                    "description": "The uploaded PDF from the current conversation. ChatGPT should populate this automatically with file reference objects including download_link.",
+                    "items": {
+                      "type": "string",
+                      "description": "Runtime populates JSON file reference objects here."
+                    },
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "openaiFileIdRefs"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Parsed rows",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "rows": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "rows"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
