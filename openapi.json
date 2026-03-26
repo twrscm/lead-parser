@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-    "url": "https://combined-noted-from-lead-parser.onrender.com"
+      "url": "https://REPLACE-WITH-YOUR-RENDER-URL.onrender.com"
     }
   ],
   "paths": {

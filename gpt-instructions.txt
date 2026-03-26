@@ -1,6 +1,4 @@
-Use the Combined Noted from Lead Parser action whenever a PDF is uploaded.
-
-When the action returns rows, return ONLY those rows inside a fenced code block.
-Do not rewrite, re-summarize, or re-parse the action result.
-Preserve the literal "- " prefix exactly as returned.
-If the action fails, tell the user the parser service is unavailable.
+Use the parser action result as the source of truth.
+Return only the parser's cleaned rows inside a fenced code block.
+Do not re-parse the raw PDF yourself.
+Do not add commentary.
