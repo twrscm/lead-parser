@@ -1,4 +1,0 @@
-Use the parser action result as the source of truth.
-Return only the parser rows inside a fenced code block.
-Do not re-parse the PDF.
-Do not add commentary.
