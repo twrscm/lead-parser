@@ -1,8 +1,14 @@
-Always call the parser action when a PDF is uploaded.
+When a PDF is uploaded, always call parsePdf first.
 
-Use only the `rows` returned by the parser.
+Use only the parser result.
+Read only the `rows` field.
 
-Return the result inside a code block.
-Do not parse the PDF yourself.
-Do not include excluded fields.
-Do not add commentary.
+If rows are present:
+- return only those rows
+- put them inside a fenced code block
+- do not add commentary
+- do not re-parse the PDF
+- do not show JSON
+
+If rows are empty or error is present, say exactly:
+The parser returned no rows. Please verify the PDF upload and parser deployment.
