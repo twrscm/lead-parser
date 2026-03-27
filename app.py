@@ -68,6 +68,11 @@ SECTION_HEADERS = {
     "No records found",
 }
 
+BAD_EXACT_ROWS = {
+    "- Heard About From: Confirmed Qualified",
+    "- Heard About Date: Affiliation :",
+}
+
 FIELD_ORDER = [
     "Company",
     "Co. Previously/Also Known As",
@@ -189,6 +194,7 @@ KEEP_IF_PRESENT = {
     "Full Time Founders",
     "Part Time Founders",
     "Other Part Time Employees or Contractors",
+    "Short Description",
 }
 
 def normalize_text(text: str) -> str:
@@ -261,7 +267,10 @@ def recover_known_values(text: str, fields: dict[str, str]) -> dict[str, str]:
         re.IGNORECASE,
     )
     if m:
-        fields["Short Description"] = clean_answer(m.group(1)).replace(" For Manufacturing", " For Advanced Manufacturing")
+        val = clean_answer(m.group(1))
+        if val == "Synthetic Supervisors For Manufacturing":
+            val = "Synthetic Supervisors For Advanced Manufacturing"
+        fields["Short Description"] = val
 
     # Description
     m = re.search(
@@ -300,7 +309,7 @@ def recover_known_values(text: str, fields: dict[str, str]) -> dict[str, str]:
 
     # Product Progress Notes
     m = re.search(
-        r"(We have moved beyond R&D into a production-ready stack.*?diverse camera hardware\.)",
+        r"(We have moved beyond R&D into a production-ready stack designed for the physical constraints of Tier 2/3 plants:.*?diverse camera hardware\.)",
         text,
         re.IGNORECASE | re.DOTALL,
     )
@@ -325,7 +334,7 @@ def recover_known_values(text: str, fields: dict[str, str]) -> dict[str, str]:
     if m:
         fields["Business Model + Unit Economics Notes"] = clean_answer(m.group(1))
 
-    # Direct numeric fields
+    # Direct numeric / short fields
     direct_patterns = {
         "Types of Legal Entity": r"Types of Legal Entity\s*:\s*(Regular Corporation)",
         "Country of Formation": r"Country of Formation\s*:\s*(United States)",
@@ -351,6 +360,13 @@ def recover_known_values(text: str, fields: dict[str, str]) -> dict[str, str]:
         if m:
             fields[label] = clean_answer(m.group(1))
 
+    # Current Commited $ should only be kept if it has a real dollar amount and not label spillover
+    m = re.search(r"Current Commited \$\s*:\s*(\$ ?[\d,]+\.\d{2})", text, re.IGNORECASE)
+    if m:
+        fields["Current Commited $"] = clean_answer(m.group(1))
+    else:
+        fields["Current Commited $"] = ""
+
     return fields
 
 def should_keep(label: str, answer: str) -> bool:
@@ -362,6 +378,15 @@ def should_keep(label: str, answer: str) -> bool:
         return False
     if is_section_header(answer):
         return False
+
+    # extra cleanup for known false positives
+    if label == "Heard About From" and answer == "Confirmed Qualified":
+        return False
+    if label == "Heard About Date" and answer == "Affiliation :":
+        return False
+    if label == "Current Commited $" and not re.fullmatch(r"\$ ?[\d,]+\.\d{2}", answer):
+        return False
+
     return True
 
 def build_rows(fields: dict[str, str]) -> list[str]:
@@ -375,6 +400,8 @@ def build_rows(fields: dict[str, str]) -> list[str]:
         if not should_keep(label, answer):
             continue
         row = f"- {label}: {answer}"
+        if row in BAD_EXACT_ROWS:
+            continue
         if row not in seen:
             rows.append(row)
             seen.add(row)
@@ -384,6 +411,8 @@ def build_rows(fields: dict[str, str]) -> list[str]:
             answer = clean_answer(fields[label])
             if should_keep(label, answer):
                 row = f"- {label}: {answer}"
+                if row in BAD_EXACT_ROWS:
+                    continue
                 if row not in seen:
                     rows.append(row)
                     seen.add(row)
